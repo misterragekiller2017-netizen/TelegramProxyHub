@@ -1,0 +1,41 @@
+
+name: Build Windows EXE
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'TelegramProxyHub_Public/**'
+      - '.github/workflows/main.yml'
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Download project
+        uses: actions/checkout@v4
+
+      - name: Install Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        working-directory: TelegramProxyHub_Public
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyinstaller
+
+      - name: Build EXE
+        working-directory: TelegramProxyHub_Public
+        run: |
+          pyinstaller --noconfirm --clean --onefile --windowed --name TelegramProxyHub main.py
+
+      - name: Upload EXE
+        uses: actions/upload-artifact@v4
+        with:
+          name: TelegramProxyHub-Windows-x64
+          path: TelegramProxyHub_Public/dist/TelegramProxyHub.exe
+          retention-days: 14
